@@ -9,6 +9,8 @@ public class Rotate : MonoBehaviour
 
     private void Update() // should stop when game over
     {
+        if (GameManager.Instance.GameState != GameState.GameRunning)
+            return;
         if (Input.GetMouseButtonUp(0))
         {
             lastPosition = Vector3.zero;
