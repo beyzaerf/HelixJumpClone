@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 6013858088900305535}
   - component: {fileID: 6013858088900305475}
   m_Layer: 0
-  m_Name: Cylinder1
+  m_Name: Cylinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -172,8 +172,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 2.944063, y: 0.009338021, z: 2.7852335}
-  m_Center: {x: -0.19299877, y: -0.11404723, z: -0.13020134}
+  m_Size: {x: 2.944063, y: 0, z: 2.7852335}
+  m_Center: {x: -0.19299877, y: -0.11871624, z: -0.13020134}
 --- !u!1001 &4114348893317103486
 PrefabInstance:
   m_ObjectHideFlags: 0

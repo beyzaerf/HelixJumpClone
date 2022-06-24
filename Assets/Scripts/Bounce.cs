@@ -8,13 +8,14 @@ using UnityEngine.UI;
 public class Bounce : MonoBehaviour
 {
     [SerializeField] Text text;
-    [SerializeField] private int speed;
+    private int speed = 5;
     private Rigidbody rb;
-    private bool isPowerUp; //is true when ball has passed 3 or more platforms.
+    public bool isPowerUp; //is true when ball has passed 3 or more platforms.
     public int perfectPass; //passing count
     private int score;
-    [SerializeField] private bool isBouncing; //for the camera 
+    private bool isBouncing; //for the camera 
     private GameManager gameManager;
+    [SerializeField] private GameObject splashPrefab;
 
     public bool IsBouncing { get => isBouncing; set => isBouncing = value; }
 
@@ -26,7 +27,7 @@ public class Bounce : MonoBehaviour
     }
     private void Update()
     {
-        if (perfectPass >= 3 && !isPowerUp) //if ball passed more than 3 platforms it gets power up
+        if (perfectPass >= 5 && !isPowerUp) //if ball passed more than 3 platforms it gets power up
         {
             IsBouncing = false;
             isPowerUp = true;
@@ -41,10 +42,12 @@ public class Bounce : MonoBehaviour
     {
         if (collision.transform.CompareTag("Bounce"))
         {
+
+            Vector3 vector = new Vector3(transform.position.x, transform.position.y - 0.1f, transform.position.z);
             rb.velocity = transform.up * speed;
-
+            GameObject instSplash = Instantiate(splashPrefab, vector, Quaternion.Euler(90,0,0));
+            instSplash.transform.parent = collision.transform;
             IsBouncing = true;
-
             if (isPowerUp)
             {
                 rb.AddForce(Vector3.down, ForceMode.Impulse);
@@ -56,9 +59,8 @@ public class Bounce : MonoBehaviour
         else if (collision.transform.CompareTag("RedBounce"))
         {
             IsBouncing = false;
-            if (!isPowerUp)
-            {
-                //game over 
+            if (!isPowerUp)   //game over
+            { 
                 rb.isKinematic = true;
                 gameManager.GameFail();
                 gameManager.GameState = GameState.GameOver;
@@ -67,7 +69,12 @@ public class Bounce : MonoBehaviour
             {
                 rb.velocity = transform.up * speed;
                 IsBouncing = false;
-                Destroy(collision.transform.parent.gameObject);
+                collision.transform.parent.parent = null;
+
+                foreach (Rigidbody rb in collision.transform.parent.GetComponentsInChildren<Rigidbody>())
+                {
+                    rb.isKinematic = false;
+                }
             }
         }
         else if (collision.transform.CompareTag("Goal"))
@@ -80,8 +87,22 @@ public class Bounce : MonoBehaviour
     }
     private void OnTriggerEnter(Collider other) //passing without touching anything
     {
+        other.transform.parent = null;
+        //other.isTrigger = false;
         perfectPass++;
-        Destroy(other.gameObject);
+        foreach (Rigidbody rb in other.GetComponentsInChildren<Rigidbody>())
+        {
+            rb.isKinematic = false;
+            rb.AddForce(Vector3.back * 1000);
+            DOVirtual.DelayedCall(1, () =>
+            {
+                rb.GetComponent<MeshCollider>().enabled = false;
+            });
+            DOVirtual.DelayedCall(2, () =>
+            {
+                Destroy(rb.gameObject);
+            });
+        }
         AddScore();
         IsBouncing = false;
     }
